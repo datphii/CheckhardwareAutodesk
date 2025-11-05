@@ -1,0 +1,72 @@
+Hướng dẫn sử dụng Autodesk Hardware Scanner (dành cho người dùng trên GitHub)
+
+1) Yêu cầu hệ thống
+   - Windows 10/11 64-bit
+   - Không cần cài Python nếu dùng file .exe
+   - Quyền mở file thực thi (nếu Windows SmartScreen cảnh báo, chọn More info -> Run anyway)
+
+2) Tải công cụ
+   - Truy cập trang GitHub của dự án
+   - Vào thư mục dist
+   - Tải file: AutodeskHWScanner.exe
+
+3) Chạy nhanh (không cài đặt)
+   - Mở Command Prompt hoặc PowerShell
+   - Điều hướng đến thư mục chứa AutodeskHWScanner.exe
+   - Chạy một trong các lệnh ví dụ:
+     - .\AutodeskHWScanner.exe --product revit   --version 2025 --out out
+     - .\AutodeskHWScanner.exe --product autocad --version 2026 --out out
+     - .\AutodeskHWScanner.exe --product inventor --version 2025 --out out
+   - Ghi chú:
+     - --product: revit | autocad | inventor
+     - --version: 2025 | 2026 (mở rộng theo các file rule có sẵn)
+     - --out: thư mục xuất kết quả (tự tạo nếu chưa có)
+     - --json-only: chỉ xuất JSON (không mở giao diện xem báo cáo)
+
+4) Kết quả sau khi chạy
+   - Thư mục out sẽ có 2 file:
+     - {product}_{version}_facts_and_result.json: dữ liệu phần cứng + kết quả kiểm tra
+     - {product}_{version}_report.html: báo cáo HTML đẹp, có thể in/Export PDF (Ctrl+P)
+   - Cửa sổ popup (webview) sẽ tự mở hiển thị báo cáo HTML. Nếu không mở được, vẫn có thể mở file HTML bằng trình duyệt.
+
+5) Các trường hợp thường gặp
+   - Windows cảnh báo khi mở .exe:
+     - Chọn More info -> Run anyway
+   - Antivirus chặn .exe:
+     - Thêm file vào whitelist (đây là false positive khá phổ biến với PyInstaller)
+   - Không có popup, nhưng có file HTML/JSON:
+     - Mở file HTML trong thư mục out bằng trình duyệt
+   - Sai product/version:
+     - Kiểm tra lại tham số và đối chiếu các file rule trong scanner/rules
+
+6) Ví dụ đầy đủ
+   - Kiểm tra máy cho Revit 2025 và lưu về thư mục C:\ScanResult
+     - .\AutodeskHWScanner.exe --product revit --version 2025 --out "C:\\ScanResult"
+   - Chỉ xuất JSON cho AutoCAD 2026
+     - .\AutodeskHWScanner.exe --product autocad --version 2026 --json-only --out out
+
+7) Dành cho IT chạy hàng loạt (tuỳ chọn)
+   - Tạo file scan_all.bat cùng thư mục với .exe, nội dung ví dụ:
+     - @echo off
+     - AutodeskHWScanner.exe --product revit --version 2025 --out out
+     - AutodeskHWScanner.exe --product autocad --version 2025 --out out
+     - AutodeskHWScanner.exe --product inventor --version 2025 --out out
+     - pause
+
+8) Xây dựng từ mã nguồn (tuỳ chọn, dành cho developer)
+   - Yêu cầu: Python 3.11 (khuyến nghị), PowerShell, quyền chạy script
+   - Bước nhanh:
+     - cd vào thư mục autodesk-hwscanner
+     - python -m venv .venv
+     - .\.venv\Scripts\Activate.ps1
+     - pip install -U pip
+     - pip install -r requirements.txt
+     - pip install pyinstaller
+     - python -m PyInstaller build.spec --clean
+     - File .exe nằm tại: dist\AutodeskHWScanner.exe
+
+9) Liên hệ/Hỗ trợ
+   - Tạo issue trên GitHub của dự án kèm ảnh chụp lỗi và lệnh đã chạy
+   - Ghi rõ phiên bản Windows, CPU/GPU nếu liên quan đến lỗi collector
+
+

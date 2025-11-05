@@ -2,6 +2,21 @@
 
 ---
 # LOG cập nhật dự án
+- 2025-11-05: Hoàn tất build EXE thành công bằng Python 3.11 + PyInstaller 6.16.0 (onefile)
+- 2025-11-05: Thêm script build cho Windows
+  - build.bat: tự tìm python (PATH, %LOCALAPPDATA%, C:\Python3xx, Program Files) và gọi PyInstaller qua spec
+  - build.ps1: bản PowerShell tương tự, xử lý thiếu PATH, tự cài PyInstaller nếu cần
+- 2025-11-05: Cập nhật build.spec
+  - datas: đóng gói `scanner/rules`, `report/templates`, `dxinfo.xml`
+  - hiddenimports: `webview`, `webview.platforms.winforms`, `webview.platforms.cef`, `pythoncom`, `pywintypes`
+- 2025-11-05: Khắc phục lỗi hook pywin32 khi build (pythoncom/_win32sysloader)
+  - Cài/đồng bộ `pywin32` và chạy `python -m pywin32_postinstall install` trong venv
+- 2025-11-05: Bổ sung tài liệu
+  - BUILD_GUIDE.md: hướng dẫn build chi tiết, xử lý lỗi thường gặp
+  - INSTALL.md: hướng dẫn chạy EXE cho người dùng cuối
+- 2025-11-05: Sửa `scanner/main.py` xoá duplicate `popup_report`, chuẩn hoá đường dẫn template khi chạy trong PyInstaller
+- 2025-11-05: Thêm `pywebview==5.3.0` vào requirements (popup báo cáo)
+- 2025-11-05: Nhấn mạnh dùng Python 3.10/3.11 (khuyến nghị 3.11) thay vì 3.13 để build ổn định
 - 2025-10-30: Thêm collector fallback VRAM GPU (chọn card VRAM lớn nhất từ dxdiag/WMI, giữ directx feature level từ dxdiag nếu có)
 - 2025-10-30: Sửa logic so sánh phiên bản Windows trong rules_engine cho đúng thứ tự thực tế (extract major version)
 - 2025-10-30: Bổ sung các rule JSON cho autocad_2026, revit_2026, inventor_2026 mẫu
@@ -49,6 +64,24 @@
    - Có thể build EXE với PyInstaller (thêm --add-data)
    - Có thể thay/đổi rule bằng sửa file JSON không cần build lại EXE
    - Dễ mở rộng thêm collector, bổ sung rule cho các tiêu chí mới
+
+   Hướng dẫn build nhanh (Windows, khuyến nghị Python 3.11 + venv):
+   - Tạo/kích hoạt venv trong thư mục `autodesk-hwscanner`:
+     - `python -m venv .venv`  → `./.venv/Scripts/Activate.ps1`
+     - `pip install -U pip && pip install -r requirements.txt && pip install pyinstaller`
+   - Build:
+     - Cách 1: `python -m PyInstaller build.spec --clean`
+     - Cách 2: chạy `build.ps1` hoặc `build.bat`
+   - Kết quả: `dist/AutodeskHWScanner.exe`
+
+   Lỗi thường gặp khi build và cách xử lý nhanh:
+   - Không tìm thấy PyInstaller: cài trong đúng interpreter/venv đang dùng
+   - Lỗi pythoncom/_win32sysloader (pywin32): `pip install --upgrade pywin32` rồi `python -m pywin32_postinstall install`
+   - Chạy build từ `C:\Windows\System32`: cd về thư mục dự án trước khi build
+
+   Chạy EXE (CLI):
+   - `AutodeskHWScanner.exe --product revit --version 2025 --out out`
+   - Ứng dụng là CLI, không hiện màn hình chọn; popup webview sẽ mở sau khi sinh báo cáo HTML
 
 # Điểm mạnh
 - Dễ mở rộng rule, collector
