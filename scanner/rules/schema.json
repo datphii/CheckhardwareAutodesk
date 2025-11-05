@@ -1,0 +1,28 @@
+{
+  "title": "Rules Schema",
+  "type": "object",
+  "properties": {
+    "product": {"type": "string"},
+    "version": {"type": "string"},
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "target": {"type": "string"},
+          "operator": {"type": "string"},
+          "min": {},
+          "recommended": {},
+          "unit": {"type": "string"},
+          "severity": {"type": "string"}
+        },
+        "required": ["id", "target", "operator", "severity"]
+      }
+    },
+    "notes": {"type": "string"}
+  },
+  "required": ["product", "version", "checks"]
+}
+
+

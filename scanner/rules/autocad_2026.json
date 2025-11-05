@@ -1,0 +1,13 @@
+{
+  "product": "AutoCAD",
+  "version": "2026",
+  "checks": [
+    {"id":"os_win64","target":"os.version","operator":">=str","min":"Windows 10 1809","recommended":"Windows 11","unit":"","severity":"required"},
+    {"id":"ram_total","target":"ram.total_gb","operator":">=num","min":8,"recommended":16,"unit":"GB","severity":"required"},
+    {"id":"cpu_threads","target":"cpu.logical_processors","operator":">=num","min":4,"recommended":8,"unit":"","severity":"recommended"},
+    {"id":"gpu_vram","target":"gpu.vram_gb","operator":">=num","min":1,"recommended":4,"unit":"GB","severity":"required"},
+    {"id":"directx_level","target":"gpu.directx_feature_level","operator":">=num","min":11,"recommended":12,"unit":"","severity":"required"},
+    {"id":"storage_free","target":"storage.free_gb","operator":">=num","min":10,"recommended":20,"unit":"GB","severity":"required"}
+  ],
+  "notes": "Placeholder; điều chỉnh theo yêu cầu chính thức của AutoCAD 2026."
+}

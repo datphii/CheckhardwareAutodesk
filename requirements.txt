@@ -1,0 +1,7 @@
+psutil==5.9.8
+WMI==1.5.1
+lxml==5.3.0
+Jinja2==3.1.4
+pydantic==2.8.2
+pywebview==5.3.0
+

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <title>{{ product | upper }} {{ version }} - Hardware Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="color-scheme" content="light dark">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pass: '#16a34a',
+            warn: '#f59e0b',
+            fail: '#dc2626'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .status-PASS { color: #16a34a }
+    .status-WARN { color: #f59e0b }
+    .status-FAIL { color: #dc2626 }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style> body{font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial} </style>
+  <script>
+    // simple dark mode respect
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark')
+    }
+  </script>
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div class="max-w-6xl mx-auto p-6">
+    <header class="mb-6 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">{{ product | upper }} {{ version }} - Hardware Scan</h1>
+<button onclick="window.print()"
+  class="ml-4 inline-flex items-center rounded-md bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 text-xs font-semibold shadow transition">
+  Export PDF
+</button>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Generated at {{ ("now" | tojson) if false else '' }}</p>
+      </div>
+      <div>
+        {% if overall == "Ready" %}
+          <span class="inline-flex items-center gap-2 rounded-md bg-green-600 text-white px-3 py-1.5 text-sm font-semibold shadow">Ready</span>
+        {% elif overall == "Needs Upgrade" %}
+          <span class="inline-flex items-center gap-2 rounded-md bg-amber-500 text-white px-3 py-1.5 text-sm font-semibold shadow">Needs Upgrade</span>
+        {% else %}
+          <span class="inline-flex items-center gap-2 rounded-md bg-red-600 text-white px-3 py-1.5 text-sm font-semibold shadow">Not Supported</span>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <section class="lg:col-span-2">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow ring-1 ring-gray-200/70 dark:ring-gray-700/60">
+          <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+            <h2 class="text-lg font-semibold">Checks</h2>
+          </div>
+          <div class="p-4 overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="text-left">
+                <tr class="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
+                  <th class="py-2 pr-4">ID</th>
+                  <th class="py-2 pr-4">Target</th>
+                  <th class="py-2 pr-4">Actual</th>
+                  <th class="py-2 pr-4">Min</th>
+                  <th class="py-2 pr-4">Recommended</th>
+                  <th class="py-2 pr-4">Unit</th>
+                  <th class="py-2 pr-4">Severity</th>
+                  <th class="py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody class="align-top">
+                {% for c in details.checks %}
+                <tr class="border-b border-gray-100 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                  <td class="py-2 pr-4 font-mono text-xs">{{ c.id }}</td>
+                  <td class="py-2 pr-4">{{ c.target }}</td>
+                  <td class="py-2 pr-4">{{ c.actual }}</td>
+                  <td class="py-2 pr-4">{{ c.min }}</td>
+                  <td class="py-2 pr-4">{{ c.recommended }}</td>
+                  <td class="py-2 pr-4">{{ c.unit }}</td>
+                  <td class="py-2 pr-4">
+                    <span class="inline-flex items-center rounded bg-gray-100 dark:bg-gray-700/80 px-2 py-0.5 text-xs">{{ c.severity }}</span>
+                  </td>
+                  <td class="py-2">
+                    {% set status_class = 'status-' + c.status %}
+                    <span class="{{ status_class }} font-semibold">{{ c.status }}</span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow ring-1 ring-gray-200/70 dark:ring-gray-700/60 mb-6">
+          <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+            <h2 class="text-lg font-semibold">Summary</h2>
+          </div>
+          <div class="p-5 space-y-3 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600 dark:text-gray-300">Product</span>
+              <span class="font-semibold">{{ product }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600 dark:text-gray-300">Version</span>
+              <span class="font-semibold">{{ version }}</span>
+            </div>
+            <div class="pt-2 text-xs text-gray-500 dark:text-gray-400">
+              - PASS: đạt ngưỡng tối thiểu<br/>
+              - WARN: khuyến nghị nâng cấp<br/>
+              - FAIL: thiếu yêu cầu bắt buộc
+            </div>
+          </div>
+        </div>
+
+        {% if details.notes %}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow ring-1 ring-gray-200/70 dark:ring-gray-700/60">
+          <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+            <h2 class="text-lg font-semibold">Notes</h2>
+          </div>
+          <div class="p-5 text-sm">{{ details.notes }}</div>
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+
+    <section class="mt-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow ring-1 ring-gray-200/70 dark:ring-gray-700/60">
+        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+          <h2 class="text-lg font-semibold">Environment</h2>
+          <button onclick="toggleEnv()" class="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">Toggle</button>
+        </div>
+        <div class="p-4">
+          <pre id="env" class="text-xs overflow-x-auto whitespace-pre-wrap">{{ facts | tojson(indent=2) }}</pre>
+        </div>
+      </div>
+    </section>
+
+    <footer class="mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
+      Generated by Autodesk Hardware Scanner
+    </footer>
+  </div>
+
+  <script>
+    function toggleEnv(){
+      const el = document.getElementById('env');
+      if(!el) return; el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
+
+

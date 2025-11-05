@@ -1,0 +1,14 @@
+{
+  "product": "Revit",
+  "version": "2026",
+  "checks": [
+    {"id":"os_win64","target":"os.version","operator":">=str","min":"Windows 10 1809","recommended":"Windows 11","unit":"","severity":"required"},
+    {"id":"ram_total","target":"ram.total_gb","operator":">=num","min":16,"recommended":32,"unit":"GB","severity":"required"},
+    {"id":"cpu_threads","target":"cpu.logical_processors","operator":">=num","min":8,"recommended":16,"unit":"","severity":"recommended"},
+    {"id":"gpu_vram","target":"gpu.vram_gb","operator":">=num","min":2,"recommended":8,"unit":"GB","severity":"required"},
+    {"id":"directx_level","target":"gpu.directx_feature_level","operator":">=num","min":11,"recommended":12,"unit":"","severity":"required"},
+    {"id":"storage_free","target":"storage.free_gb","operator":">=num","min":30,"recommended":50,"unit":"GB","severity":"required"},
+    {"id":"storage_type","target":"storage.primary_type","operator":"in","min":["SSD","NVMe"],"recommended":["NVMe"],"unit":"","severity":"recommended"}
+  ],
+  "notes": "Cập nhật giá trị min/recommended theo tài liệu chính thức nội bộ/Autodesk 2026."
+}

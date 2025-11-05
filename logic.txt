@@ -1,0 +1,60 @@
+# Autodesk Hardware Scanner - Logic hoạt động
+
+---
+# LOG cập nhật dự án
+- 2025-10-30: Thêm collector fallback VRAM GPU (chọn card VRAM lớn nhất từ dxdiag/WMI, giữ directx feature level từ dxdiag nếu có)
+- 2025-10-30: Sửa logic so sánh phiên bản Windows trong rules_engine cho đúng thứ tự thực tế (extract major version)
+- 2025-10-30: Bổ sung các rule JSON cho autocad_2026, revit_2026, inventor_2026 mẫu
+- 2025-10-30: Tích hợp pywebview, thêm hàm popup_report vào main.py để mở giao diện HTML báo cáo đẹp như trình duyệt, không cần browser ngoài
+- 2025-10-30: Thêm nút Export PDF (window.print()) vào report.html.j2 ở Header, sử dụng Tailwind cho style đẹp
+- 2025-10-30: Hướng dẫn quy trình kiểm thử GUI popup trong Python shell (test webview)
+
+# (Các thay đổi khác vẫn được cập nhật ở phần mô tả logic bên dưới...)
+
+1. **Khởi chạy**
+   - Người dùng chạy CLI hoặc EXE kèm tham số (product + version), ví dụ:
+     python -m scanner.main --product revit --version 2025 --out out
+
+2. **Thu thập thông tin phần cứng (collectors)**
+   - Gọi lần lượt các collector:
+     - OS: Lấy tên/windows version
+     - CPU: Thông tin chip, số core logic, xung nhịp
+     - RAM: Tổng RAM thực tế
+     - GPU: Card đồ họa, VRAM lớn nhất, DirectX feature level
+     - STORAGE: Tổng dung lượng trống, loại ổ chính
+     - (tùy chọn: network, ping...)
+   - Kết quả được gom thành dict facts chuẩn hóa.
+
+3. **Đọc rule JSON**
+   - Nạp file rule theo tham số sản phẩm (rules/autocad_2025.json, ...)
+   - Mỗi rule chứa danh sách các "checks" - mỗi check chỉ định:
+     - Trường cần kiểm tra (target, vd: ram.total_gb)
+     - Toán tử (>=num, in, >=str...)
+     - Ngưỡng min, recommended, đơn vị, mức độ nghiêm trọng
+
+4. **So khớp quy tắc (rules_engine.py)**
+   - Lấy giá trị tương ứng từ kết quả thực tế (facts)
+   - So sánh giá trị thực với min theo toán tử chỉ định
+   - Đánh giá từng check: PASS / FAIL / WARN
+   - Tổng hợp kết luận overall: Ready / Needs Upgrade / Not Supported
+     - Not Supported nếu bất kỳ required nào FAIL
+     - Needs Upgrade nếu có WARN ở recommended, không có required FAIL
+     - Ready nếu mọi yêu cầu đều PASS
+
+5. **Sinh báo cáo kết quả**
+   - Lưu kết quả chi tiết ra JSON gồm: kết quả từng check, facts phần cứng, overall
+   - (Nếu bật) Sinh file HTML dùng template Tailwind đẹp mắt, tổng quan + từng check + raw facts
+
+6. **Đóng gói, mở rộng**
+   - Có thể build EXE với PyInstaller (thêm --add-data)
+   - Có thể thay/đổi rule bằng sửa file JSON không cần build lại EXE
+   - Dễ mở rộng thêm collector, bổ sung rule cho các tiêu chí mới
+
+# Điểm mạnh
+- Dễ mở rộng rule, collector
+- Báo cáo thân thiện, dễ kiểm tra
+- Có thể chạy mọi máy, không cần cài đặt phức tạp
+
+# Ứng dụng
+- Kiểm tra máy trước khi cài/làm việc với phần mềm Autodesk (Revit/AutoCAD/Inventor...)
+- Dùng cho IT, tự động kiểm tra phòng máy, phát hiện phần cứng chưa đạt yêu cầu nhanh gọn
