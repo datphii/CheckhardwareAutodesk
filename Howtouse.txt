@@ -13,7 +13,9 @@ Hướng dẫn sử dụng Autodesk Hardware Scanner (dành cho người dùng t
 3) Chạy nhanh (không cài đặt)
    - Mở Command Prompt hoặc PowerShell
    - Điều hướng đến thư mục chứa AutodeskHWScanner.exe
-   - Chạy một trong các lệnh ví dụ:
+   - Chế độ giao diện (mới):
+     - .\AutodeskHWScanner.exe --gui
+   - Hoặc chạy CLI trực tiếp:
      - .\AutodeskHWScanner.exe --product revit   --version 2025 --out out
      - .\AutodeskHWScanner.exe --product autocad --version 2026 --out out
      - .\AutodeskHWScanner.exe --product inventor --version 2025 --out out
@@ -21,7 +23,8 @@ Hướng dẫn sử dụng Autodesk Hardware Scanner (dành cho người dùng t
      - --product: revit | autocad | inventor
      - --version: 2025 | 2026 (mở rộng theo các file rule có sẵn)
      - --out: thư mục xuất kết quả (tự tạo nếu chưa có)
-     - --json-only: chỉ xuất JSON (không mở giao diện xem báo cáo)
+      - --json-only: chỉ xuất JSON (không mở giao diện xem báo cáo)
+      - --gui: mở cửa sổ chọn product/version/out nếu không truyền tham số
 
 4) Kết quả sau khi chạy
    - Thư mục out sẽ có 2 file:

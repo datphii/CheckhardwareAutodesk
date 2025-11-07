@@ -35,9 +35,18 @@ python -m PyInstaller build.spec --clean
 
 File EXE sẽ nằm ở: `dist\AutodeskHWScanner.exe`
 
-### Chạy EXE
+### Chạy EXE (CLI và GUI)
 ```bash
+# Chế độ GUI (mới):
+.\dist\AutodeskHWScanner.exe --gui
+
+# Chế độ CLI cũ:
 .\dist\AutodeskHWScanner.exe --product revit --version 2025 --out out
+```
+
+### Chạy từ mã nguồn với GUI
+```bash
+python -m scanner.main --gui
 ```
 
 ## 📋 Kết quả

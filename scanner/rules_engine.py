@@ -5,9 +5,14 @@ from typing import Any, Dict, Tuple
 
 
 def _get_rules_dir() -> Path:
-    """Hỗ trợ khi chạy trong PyInstaller (sys._MEIPASS)"""
-    base = Path(getattr(sys, "_MEIPASS", Path(__file__).parent))
-    return base / "scanner" / "rules"
+    """Trả về thư mục chứa rules.
+    - Khi chạy trong PyInstaller: resources nằm trong thư mục tạm dưới `sys._MEIPASS/scanner/rules`.
+    - Khi chạy từ source: nằm ngay cạnh file này ở `scanner/rules`.
+    """
+    if hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS) / "scanner" / "rules"
+    # Chạy từ source: __file__ là scanner/rules_engine.py → dùng parent (scanner) rồi /rules
+    return Path(__file__).parent / "rules"
 
 
 def load_rules(product: str, version: str) -> Dict[str, Any]:
