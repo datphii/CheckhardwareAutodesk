@@ -1,0 +1,8 @@
+{
+  "version": "2026.05.23",
+  "update": {
+    "network_endpoints_url": "",
+    "rules_base_url": "",
+    "check_on_startup": false
+  }
+}

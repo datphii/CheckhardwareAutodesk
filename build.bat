@@ -81,9 +81,9 @@ if errorlevel 1 (
     echo File EXE: dist\AutodeskHWScanner.exe
     echo.
     echo Cách sử dụng:
+    echo   dist\AutodeskHWScanner.exe --agent
     echo   dist\AutodeskHWScanner.exe --product revit --version 2025 --out out
     echo.
 )
 
 pause
-

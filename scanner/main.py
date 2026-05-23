@@ -273,7 +273,14 @@ def main():
     ap.add_argument("--out", default="out", help="thư mục xuất")
     ap.add_argument("--json-only", action="store_true", help="chỉ xuất JSON")
     ap.add_argument("--gui", action="store_true", help="mở giao diện chọn nếu không truyền tham số")
+    ap.add_argument("--agent", action="store_true", help="chạy local web agent")
+    ap.add_argument("--port", type=int, default=17890, help="port cho local web agent")
     args = ap.parse_args()
+
+    if args.agent:
+        from scanner.agent import main as run_agent
+        run_agent(port=args.port)
+        return
 
     product = args.product
     version = args.version

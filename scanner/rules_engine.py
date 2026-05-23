@@ -3,6 +3,8 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
+from scanner.config_manager import load_json_config
+
 
 def _get_rules_dir() -> Path:
     """Trả về thư mục chứa rules.
@@ -17,9 +19,12 @@ def _get_rules_dir() -> Path:
 
 def load_rules(product: str, version: str) -> Dict[str, Any]:
     fname = f"{product.lower()}_{version}.json"
-    path = _get_rules_dir() / fname
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        return load_json_config(f"scanner/rules/{fname}")
+    except FileNotFoundError:
+        path = _get_rules_dir() / fname
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
 
 
 def get_value_by_path(data: Dict[str, Any], path: str):

@@ -1,5 +1,7 @@
 dist/
 build/
+node_modules/
+release/
 __pycache__/
 *.spec
 out/

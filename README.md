@@ -1,5 +1,21 @@
 # Autodesk Hardware Scanner
 
+## Web Local Agent
+
+Run from source:
+
+```bash
+python -m scanner.main --agent --port 17890
+```
+
+Run from packaged EXE:
+
+```bash
+.\dist\AutodeskHWScanner.exe --agent
+```
+
+Open `http://127.0.0.1:17890` to use the web UI. See `WEB_AGENT_ARCHITECTURE.md` for the local API and the non-hardcoded rule/endpoint update flow.
+
 Tool kiểm tra phần cứng máy tính có đáp ứng yêu cầu để chạy các phần mềm Autodesk (Revit, AutoCAD, Inventor).
 
 ## 📚 Tài liệu

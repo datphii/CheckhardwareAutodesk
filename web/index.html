@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Autodesk Hardware Scanner</title>
+  <style>
+    :root { color-scheme: light; --bg:#f6f8fb; --panel:#fff; --text:#172033; --muted:#657085; --line:#d9e0ea; --ok:#14804a; --warn:#a16207; --fail:#b42318; --brand:#2563eb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Segoe UI, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    header { padding: 20px 28px; background: var(--panel); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    h1 { margin: 0; font-size: 20px; font-weight: 650; }
+    main { padding: 24px 28px; display: grid; gap: 18px; max-width: 1180px; margin: 0 auto; }
+    .tabs { display: flex; gap: 8px; }
+    button, select, input { font: inherit; }
+    button { border: 1px solid var(--line); background: var(--panel); color: var(--text); padding: 9px 12px; border-radius: 6px; cursor: pointer; }
+    button.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+    button.active { border-color: var(--brand); color: var(--brand); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+    label { display: grid; gap: 6px; min-width: 180px; color: var(--muted); font-size: 13px; }
+    select, input { border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px; min-height: 38px; background: #fff; color: var(--text); }
+    .status { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 10px; font-weight: 650; font-size: 13px; }
+    .Ready, .PASS { color: var(--ok); background: #eaf7ef; }
+    .Needs, .WARN { color: var(--warn); background: #fff7db; }
+    .Not, .FAIL { color: var(--fail); background: #fdebea; }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    pre { background: #0f172a; color: #e5e7eb; border-radius: 8px; padding: 14px; overflow: auto; max-height: 360px; }
+    .hidden { display: none; }
+    .note { color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Autodesk Hardware Scanner</h1>
+    <div class="note" id="agentState">Checking agent...</div>
+  </header>
+  <main>
+    <div class="tabs">
+      <button id="tabSoftware" class="active">Software Check</button>
+      <button id="tabNetwork">Network Check</button>
+      <button id="tabConfig">Config</button>
+    </div>
+
+    <section id="softwarePanel" class="panel">
+      <div class="row">
+        <label>Product <select id="product"></select></label>
+        <label>Version <select id="version"></select></label>
+        <button class="primary" id="runSoftware">Run Check</button>
+      </div>
+      <div id="softwareResult"></div>
+    </section>
+
+    <section id="networkPanel" class="panel hidden">
+      <div class="row">
+        <button class="primary" id="runNetwork">Run Network Test</button>
+        <span class="note">Tests DNS, TCP 443, and HTTPS from this Windows machine.</span>
+      </div>
+      <div id="networkResult"></div>
+    </section>
+
+    <section id="configPanel" class="panel hidden">
+      <div class="row">
+        <label>Network config URL <input id="networkConfigUrl" placeholder="https://example.com/autodesk-endpoints.json"></label>
+        <button id="updateNetwork">Update Network Config</button>
+        <button id="updateAll">Update From Settings</button>
+      </div>
+      <p class="note">Rules and endpoint lists are JSON configs. The EXE ships defaults, then uses downloaded overrides from the user config folder when available.</p>
+      <div id="configResult"></div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const api = async (path, options = {}) => {
+      const res = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    };
+
+    function showTab(name) {
+      ["Software", "Network", "Config"].forEach((tab) => {
+        $("tab" + tab).classList.toggle("active", tab === name);
+        $(tab.toLowerCase() + "Panel").classList.toggle("hidden", tab !== name);
+      });
+    }
+
+    function statusClass(value) {
+      if (value === "Ready" || value === "PASS") return "status Ready";
+      if (value === "Needs Upgrade" || value === "WARN") return "status WARN";
+      return "status FAIL";
+    }
+
+    function renderSoftware(data) {
+      const rows = data.details.checks.map((c) => `
+        <tr>
+          <td>${c.id}</td><td>${c.target}</td><td>${c.actual ?? ""} ${c.unit || ""}</td>
+          <td>${c.min ?? ""} ${c.unit || ""}</td><td>${c.recommended ?? ""} ${c.unit || ""}</td>
+          <td><span class="${statusClass(c.status)}">${c.status}</span></td>
+        </tr>`).join("");
+      $("softwareResult").innerHTML = `
+        <h2><span class="${statusClass(data.overall)}">${data.overall}</span></h2>
+        <table><thead><tr><th>Check</th><th>Target</th><th>Actual</th><th>Minimum</th><th>Recommended</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+        <details><summary>Raw JSON</summary><pre>${JSON.stringify(data, null, 2)}</pre></details>`;
+    }
+
+    function renderNetwork(data) {
+      const rows = data.results.map((r) => `
+        <tr>
+          <td>${r.name}</td><td>${r.url}</td><td>${r.category || ""}</td>
+          <td>${r.checks.dns ? (r.checks.dns.ok ? "OK" : r.checks.dns.error) : ""}</td>
+          <td>${r.checks.tcp ? (r.checks.tcp.ok ? r.checks.tcp.elapsed_ms + " ms" : r.checks.tcp.error) : ""}</td>
+          <td>${r.checks.https ? (r.checks.https.status || r.checks.https.error) : ""}</td>
+          <td><span class="${statusClass(r.ok ? "PASS" : "FAIL")}">${r.ok ? "PASS" : "FAIL"}</span></td>
+        </tr>`).join("");
+      $("networkResult").innerHTML = `
+        <h2><span class="${statusClass(data.overall)}">${data.overall}</span></h2>
+        <p class="note">Config version: ${data.config_version || ""}</p>
+        <table><thead><tr><th>Name</th><th>URL</th><th>Category</th><th>DNS</th><th>TCP</th><th>HTTPS</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+        <details><summary>Raw JSON</summary><pre>${JSON.stringify(data, null, 2)}</pre></details>`;
+    }
+
+    async function init() {
+      try {
+        const health = await api("/api/health");
+        $("agentState").textContent = health.ok ? "Agent online" : "Agent unavailable";
+        const opts = await api("/api/options");
+        $("product").innerHTML = opts.products.map((p) => `<option value="${p}">${p}</option>`).join("");
+        const fillVersions = () => {
+          const versions = opts.versions[$("product").value] || [];
+          $("version").innerHTML = versions.map((v) => `<option value="${v}">${v}</option>`).join("");
+        };
+        $("product").addEventListener("change", fillVersions);
+        fillVersions();
+      } catch (err) {
+        $("agentState").textContent = "Agent offline";
+      }
+    }
+
+    $("tabSoftware").onclick = () => showTab("Software");
+    $("tabNetwork").onclick = () => showTab("Network");
+    $("tabConfig").onclick = () => showTab("Config");
+    $("runSoftware").onclick = async () => {
+      $("softwareResult").innerHTML = "<p>Running...</p>";
+      renderSoftware(await api("/api/software-check", { method: "POST", body: JSON.stringify({ product: $("product").value, version: $("version").value }) }));
+    };
+    $("runNetwork").onclick = async () => {
+      $("networkResult").innerHTML = "<p>Running...</p>";
+      renderNetwork(await api("/api/network-check", { method: "POST", body: "{}" }));
+    };
+    $("updateNetwork").onclick = async () => {
+      $("configResult").innerHTML = "<p>Updating...</p>";
+      const data = await api("/api/config/network/update", { method: "POST", body: JSON.stringify({ url: $("networkConfigUrl").value }) });
+      $("configResult").innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    };
+    $("updateAll").onclick = async () => {
+      $("configResult").innerHTML = "<p>Updating...</p>";
+      const data = await api("/api/config/update-all", { method: "POST", body: "{}" });
+      $("configResult").innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    };
+    init();
+  </script>
+</body>
+</html>

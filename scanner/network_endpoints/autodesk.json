@@ -1,0 +1,48 @@
+{
+  "version": "2026.05.23",
+  "last_updated": "2026-05-23",
+  "timeout_seconds": 8,
+  "notes": "Default Autodesk connectivity checks. Replace or update this file from a trusted remote manifest for production use.",
+  "endpoints": [
+    {
+      "id": "autodesk_main",
+      "name": "Autodesk website",
+      "category": "general",
+      "url": "https://www.autodesk.com",
+      "protocol": "https",
+      "port": 443,
+      "required": true,
+      "checks": ["dns", "tcp", "https"]
+    },
+    {
+      "id": "autodesk_accounts",
+      "name": "Autodesk accounts",
+      "category": "identity",
+      "url": "https://accounts.autodesk.com",
+      "protocol": "https",
+      "port": 443,
+      "required": true,
+      "checks": ["dns", "tcp", "https"]
+    },
+    {
+      "id": "autodesk_profile",
+      "name": "Autodesk profile",
+      "category": "identity",
+      "url": "https://profile.autodesk.com",
+      "protocol": "https",
+      "port": 443,
+      "required": true,
+      "checks": ["dns", "tcp", "https"]
+    },
+    {
+      "id": "autodesk_manage",
+      "name": "Autodesk manage portal",
+      "category": "account",
+      "url": "https://manage.autodesk.com",
+      "protocol": "https",
+      "port": 443,
+      "required": true,
+      "checks": ["dns", "tcp", "https"]
+    }
+  ]
+}
